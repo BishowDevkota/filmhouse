@@ -33,14 +33,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             TMDB. Built as a learning project.
           </p>
         </footer>
-
-        {/* Monetag ad tag. afterInteractive keeps it off the critical path. */}
-        <Script
-          src="https://quge5.com/88/tag.min.js"
-          data-zone="275684"
-          data-cfasync="false"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );
