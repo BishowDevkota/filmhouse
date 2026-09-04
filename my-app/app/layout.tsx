@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
 import Navbar from "@/components/Navbar";
+import AdBlockGate from "@/components/AdBlockGate";
 import "./globals.css";
 
 const inter = Inter({
@@ -38,6 +39,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             TMDB. Built as a learning project.
           </p>
         </footer>
+
+        <AdBlockGate />
 
         {/* Ad tags (zones 11723367 / 11723369 / 11723371). afterInteractive
             keeps them off the critical path. */}

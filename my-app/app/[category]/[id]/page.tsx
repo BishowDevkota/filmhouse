@@ -14,6 +14,7 @@ import {
   hasTmdbToken,
   pickRelated,
   pickTrailer,
+  posterUrl,
   toCardItem,
   type TmdbDetails,
 } from "@/lib/tmdb";
@@ -46,9 +47,44 @@ export async function generateMetadata({
   const { category, id } = await params;
   const details = await loadTitle(category, id);
   if (!details) return { title: "Not found — Filmhouse TV" };
+
+  const name = getTitle(details);
+  const title = `${name} — Filmhouse TV`;
+  const description = details.overview?.slice(0, 160);
+
+  // Use the title's own artwork as the share preview image, otherwise
+  // WhatsApp/Facebook/Twitter fall back to the site favicon (logo.png).
+  const ogImage = details.poster_path
+    ? {
+        url: posterUrl(details.poster_path)!,
+        width: 500,
+        height: 750,
+        alt: name,
+      }
+    : details.backdrop_path
+      ? {
+          url: backdropUrl(details.backdrop_path)!,
+          width: 1920,
+          height: 1080,
+          alt: name,
+        }
+      : null;
+
   return {
-    title: `${getTitle(details)} — Filmhouse TV`,
-    description: details.overview?.slice(0, 160),
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      images: ogImage ? [ogImage] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ogImage ? [ogImage.url] : undefined,
+    },
   };
 }
 
