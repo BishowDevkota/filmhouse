@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
-/* Palette taken from the Clips Hub logo: warm gold on pure black. */
+/* Palette taken from the Filmhouse logo: logo red on near-black. */
 @theme {
-  --color-brand: #f5a623;
-  --color-brand-bright: #ffd24a;
-  --color-brand-deep: #c77f00;
+  --color-brand: #eb1218;
+  --color-brand-bright: #ff5c5f;
+  --color-brand-deep: #8f0d12;
   --color-brand-black: #000000;
   --color-brand-surface: #101010;
-  --font-sans: var(--font-clips), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-filmhouse), ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -45,8 +45,8 @@ body {
   text-shadow: 0 2px 8px rgb(0 0 0 / 0.7);
 }
 
-/* The logo's gold gradient, for the wordmark. */
-@utility text-gradient-gold {
+/* The logo's red gradient, for the wordmark. */
+@utility text-gradient-brand {
   background-image: linear-gradient(
     180deg,
     var(--color-brand-bright) 0%,

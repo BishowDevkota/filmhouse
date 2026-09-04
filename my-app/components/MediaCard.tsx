@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { CardItem } from "@/lib/tmdb";
 
@@ -11,12 +10,12 @@ export default function MediaCard({ item }: { item: CardItem }) {
     >
       <div className="relative aspect-video w-full overflow-hidden rounded bg-neutral-800 ring-brand transition group-hover:ring-2 group-focus-visible:ring-2">
         {item.image ? (
-          <Image
+          <img
             src={item.image}
             alt={item.title}
-            fill
-            sizes="(max-width: 640px) 176px, (max-width: 768px) 224px, 256px"
-            className="object-cover"
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
           <div className="flex h-full items-center justify-center px-2 text-center text-xs text-neutral-500">

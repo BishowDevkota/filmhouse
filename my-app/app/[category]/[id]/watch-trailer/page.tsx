@@ -31,7 +31,7 @@ export async function generateMetadata({
   const { category: slug, id } = await params;
   const details = await getDetailsForSlug(slug, id);
   return {
-    title: details ? `Trailer ${getTitle(details)} — Clips Hub` : "Not found",
+    title: details ? `Trailer ${getTitle(details)} — Filmhouse TV` : "Not found",
   };
 }
 

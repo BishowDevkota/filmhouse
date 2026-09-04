@@ -34,11 +34,16 @@ export default function Navbar() {
       <div className="flex items-center gap-6">
         <Link
           href="/"
-          aria-label="Clips Hub home"
-          className="flex items-baseline gap-1.5 text-xl font-extrabold tracking-tight sm:text-2xl"
+          aria-label="Filmhouse TV home"
+          className="flex shrink-0 items-center"
         >
-          <span className="text-white">CLIPS</span>
-          <span className="text-gradient-gold">HUB</span>
+          <img
+            src="/logo.png"
+            alt="Filmhouse TV"
+            width={1254}
+            height={1254}
+            className="h-9 w-auto sm:h-11"
+          />
         </Link>
         <nav className="hidden gap-4 text-sm text-neutral-300 md:flex">
           {LINKS.map((link) => (

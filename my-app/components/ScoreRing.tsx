@@ -1,6 +1,6 @@
 /**
- * TMDB score as a gold progress ring. Pure SVG so it renders on the server and
- * costs nothing on the client.
+ * TMDB score as a red progress ring (brand color). Pure SVG so it renders on
+ * the server and costs nothing on the client.
  */
 export default function ScoreRing({
   percent,
@@ -44,15 +44,15 @@ export default function ScoreRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="url(#score-ring-gold)"
+          stroke="url(#score-ring-brand)"
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={`${filled} ${circumference}`}
         />
         <defs>
-          <linearGradient id="score-ring-gold" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#ffd24a" />
-            <stop offset="100%" stopColor="#c77f00" />
+          <linearGradient id="score-ring-brand" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#ff5c5f" />
+            <stop offset="100%" stopColor="#8f0d12" />
           </linearGradient>
         </defs>
       </svg>

@@ -15,7 +15,7 @@ export async function generateMetadata({
 }: PageProps<"/[category]">): Promise<Metadata> {
   const { category } = await params;
   const config = getCategory(category);
-  return { title: config ? `${config.label} — Clips Hub` : "Not found" };
+  return { title: config ? `${config.label} — Filmhouse TV` : "Not found" };
 }
 
 export default async function CategoryPage({

@@ -28,9 +28,9 @@ export async function generateMetadata({
 }: PageProps<"/[category]/[id]/watch-movie">): Promise<Metadata> {
   const { id } = await params;
   const details = await getMovieDetails(id);
-  if (!details) return { title: "Not found — Clips Hub" };
+  if (!details) return { title: "Not found — Filmhouse TV" };
   return {
-    title: `Watch ${getTitle(details)} — Clips Hub`,
+    title: `Watch ${getTitle(details)} — Filmhouse TV`,
     description: details.overview?.slice(0, 160),
   };
 }

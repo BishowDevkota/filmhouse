@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
@@ -58,13 +57,10 @@ export default function HeroPlayer({
   return (
     <>
       {backdrop ? (
-        <Image
+        <img
           src={backdrop}
           alt={title}
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-top"
+          className="absolute inset-0 h-full w-full object-cover object-top"
         />
       ) : (
         <div className="absolute inset-0 bg-neutral-800" />

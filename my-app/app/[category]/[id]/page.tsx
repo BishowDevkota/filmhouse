@@ -45,9 +45,9 @@ export async function generateMetadata({
 }: PageProps<"/[category]/[id]">): Promise<Metadata> {
   const { category, id } = await params;
   const details = await loadTitle(category, id);
-  if (!details) return { title: "Not found — Clips Hub" };
+  if (!details) return { title: "Not found — Filmhouse TV" };
   return {
-    title: `${getTitle(details)} — Clips Hub`,
+    title: `${getTitle(details)} — Filmhouse TV`,
     description: details.overview?.slice(0, 160),
   };
 }

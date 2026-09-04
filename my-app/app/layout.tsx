@@ -5,14 +5,19 @@ import Navbar from "@/components/Navbar";
 import "./globals.css";
 
 const inter = Inter({
-  variable: "--font-clips",
+  variable: "--font-filmhouse",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Clips Hub — Movies & TV Shows",
+  title: "Filmhouse TV — Movies & TV Shows",
   description:
     "Browse movies, TV shows, anime and Hindi cinema, with trailers, powered by the TMDB API.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+    shortcut: "/logo.png",
+  },
   other: {
     monetag: "b3161416359da337fc7de5be85a55cb1",
   },

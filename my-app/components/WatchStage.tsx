@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import CastCarousel from "@/components/CastCarousel";
 import EpisodePicker from "@/components/EpisodePicker";
@@ -37,14 +36,11 @@ function AmbientBackdrop({ src }: { src: string }) {
       aria-hidden
       className="pointer-events-none absolute inset-x-0 top-0 h-[420px] overflow-hidden md:h-[680px]"
     >
-      <Image
+      <img
         src={src}
         alt=""
         aria-hidden
-        fill
-        sizes="100vw"
-        className="scale-110 object-cover object-top opacity-30 blur-2xl"
-        loading="eager"
+        className="absolute inset-0 h-full w-full scale-110 object-cover object-top opacity-30 blur-2xl"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/85 to-black" />
       <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black to-transparent" />
@@ -128,13 +124,13 @@ function InfoPanel({ info }: { info: WatchTitleInfo }) {
 
       <div className="grid gap-8 md:grid-cols-[200px_minmax(0,1fr)] lg:gap-10">
         {info.poster ? (
-          <div className="relative mx-auto aspect-[2/3] w-40 self-start overflow-hidden rounded-2xl bg-neutral-900 shadow-[0_30px_70px_-25px_rgba(245,166,35,0.45)] ring-1 ring-white/15 md:mx-0 md:w-full">
-            <Image
+          <div className="relative mx-auto aspect-[2/3] w-40 self-start overflow-hidden rounded-2xl bg-neutral-900 shadow-[0_30px_70px_-25px_rgba(235,18,24,0.45)] ring-1 ring-white/15 md:mx-0 md:w-full">
+            <img
               src={info.poster}
               alt={`${info.title} poster`}
-              fill
-              sizes="(max-width: 768px) 160px, 200px"
-              className="object-cover"
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover"
             />
           </div>
         ) : null}

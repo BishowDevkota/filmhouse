@@ -254,7 +254,7 @@ function ServerBar({
             className={[
               "flex min-w-[92px] items-center justify-center rounded-xl border px-3 py-2 leading-tight transition",
               selected
-                ? "border-brand bg-brand/20 text-white shadow-[0_0_20px_-6px_rgba(245,166,35,0.7)]"
+                ? "border-brand bg-brand/20 text-white shadow-[0_0_20px_-6px_rgba(235,18,24,0.7)]"
                 : "border-white/10 bg-white/5 text-neutral-300 hover:border-white/25 hover:text-white",
               !server.enabled
                 ? "cursor-not-allowed opacity-40 hover:border-white/10 hover:text-neutral-300"

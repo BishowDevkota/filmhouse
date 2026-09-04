@@ -1,15 +1,8 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "image.tmdb.org",
-        pathname: "/t/p/**",
-      },
-    ],
-  },
-};
+// Posters, backdrops and the logo load straight from their CDNs via plain
+// <img> tags, so the app never touches Vercel's metered /_next/image
+// optimizer (it returns 402 once the plan's transformation quota runs out).
+const nextConfig: NextConfig = {};
 
 export default nextConfig;
