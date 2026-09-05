@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import HeroPlayer from "@/components/HeroPlayer";
 import HeroActions from "@/components/HeroActions";
+import SearchBox from "@/components/SearchBox";
 import { watchLabel, watchPath } from "@/lib/streaming";
 import {
   backdropUrl,
@@ -30,7 +32,7 @@ export default async function Hero() {
   }
 
   return (
-    <section className="relative h-[56vw] max-h-[85vh] min-h-[420px] w-full overflow-hidden">
+    <section className="relative h-[56vw] max-h-[85vh] min-h-[520px] w-full overflow-hidden">
       <HeroPlayer
         backdrop={backdropUrl(featured.backdrop_path)}
         title={title}
@@ -49,6 +51,11 @@ export default async function Hero() {
           infoHref={`/${getCategorySlug(featured)}/${featured.id}`}
           watchLabel={watchLabel(mediaType)}
         />
+
+        {/* useSearchParams needs a boundary inside this server component. */}
+        <Suspense fallback={<div className="h-12 w-full max-w-md" />}>
+          <SearchBox variant="hero" placeholder="Search movies, shows, anime…" />
+        </Suspense>
       </div>
     </section>
   );
