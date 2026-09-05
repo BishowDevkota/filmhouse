@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import AdBlockGate from "@/components/AdBlockGate";
 import "./globals.css";
 
@@ -30,15 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col bg-brand-black font-sans">
         <Navbar />
         <main className="flex-1">{children}</main>
-        <footer className="mt-16 px-4 py-10 text-center text-xs text-neutral-500 md:px-12">
-          <p className="mb-2 tracking-[0.3em] text-brand/80">
-            MOVIES &amp; TV SHOWS
-          </p>
-          <p>
-            This product uses the TMDB API but is not endorsed or certified by
-            TMDB. Built as a learning project.
-          </p>
-        </footer>
+        <Footer />
 
         <AdBlockGate />
 
