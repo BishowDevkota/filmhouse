@@ -50,6 +50,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Script id="ad-zone-11723371" strategy="afterInteractive">
           {`(function(s){s.dataset.zone='11723371',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`}
         </Script>
+
+        {/* HilltopAds tag, verified by the meta tag in `metadata.other`. */}
+        <Script
+          src="https://naive-many.com/b.3/VC0FP_3Mp/v/bjm/VCJZZhD/0m3/Mzz_gp5VMzDoIK5vLWT/cnzVO/DWkcwiMVzeMq"
+          data-cfasync="false"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
