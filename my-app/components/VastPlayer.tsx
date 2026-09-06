@@ -145,11 +145,10 @@ export default function VastPlayer({
       return;
     }
 
-    let cancelled = false;
     void import("hls.js").then(({ default: Hls }) => {
-      if (cancelled || disposedRef.current) return;
+      if (disposedRef.current) return;
       if (!Hls.isSupported()) {
-        if (!cancelled) setPhase("failed");
+        if (!disposedRef.current) setPhase("failed");
         return;
       }
       const hls = new Hls();
@@ -163,11 +162,6 @@ export default function VastPlayer({
       hls.loadSource(url);
       hls.attachMedia(video);
     });
-
-    // The cleanup effect destroys hlsRef; this flag guards the async import.
-    return () => {
-      cancelled = true;
-    };
   }, [kind, url]);
 
   // No VAST tag → skip the ad entirely, just like a plain <video>.
@@ -201,10 +195,16 @@ export default function VastPlayer({
       return;
     }
 
-    let ima: ImaSdk;
+    /** No usable ad (SDK error, no fill, playback error) → straight to content. */
+    const skipToContent = () => {
+      if (!contentStartedRef.current) {
+        contentStartedRef.current = true;
+        startContent();
+      }
+    };
+
     void loadImaSdk()
-      .then((sdk) => {
-        ima = sdk;
+      .then((ima) => {
         if (disposedRef.current) return;
 
         setPhase("loading-ad");
@@ -212,14 +212,6 @@ export default function VastPlayer({
         const adsLoader = new ima.AdsLoader(adContainer);
         adsLoaderRef.current = adsLoader;
         adContainer.initialize();
-
-        /** No usable ad → go straight to content. */
-        const skipToContent = () => {
-          if (!contentStartedRef.current) {
-            contentStartedRef.current = true;
-            startContent();
-          }
-        };
 
         adsLoader.addEventListener(ima.AdErrorEvent.Type.AD_ERROR, skipToContent);
         adsLoader.addEventListener(
@@ -244,24 +236,22 @@ export default function VastPlayer({
               ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
               resume,
             );
-            manager.addEventListener(
-              ima.AdEvent.Type.ALL_ADS_COMPLETED,
-              () => {
-                try {
-                  manager.destroy();
-                } catch {
-                  // Already destroyed.
-                }
-                if (adsManagerRef.current === manager) {
-                  adsManagerRef.current = null;
-                }
-                resume();
-              },
-            );
+            manager.addEventListener(ima.AdEvent.Type.ALL_ADS_COMPLETED, () => {
+              try {
+                manager.destroy();
+              } catch {
+                // Already destroyed.
+              }
+              if (adsManagerRef.current === manager) {
+                adsManagerRef.current = null;
+              }
+              resume();
+            });
             manager.addEventListener(ima.AdErrorEvent.Type.AD_ERROR, resume);
 
             const width = container.clientWidth || 640;
-            const height = container.clientHeight || Math.round((width * 9) / 16);
+            const height =
+              container.clientHeight || Math.round((width * 9) / 16);
             try {
               manager.init(width, height, ima.ViewMode.NORMAL);
               manager.start();
@@ -282,10 +272,7 @@ export default function VastPlayer({
           skipToContent();
         }
       })
-      .catch(() => {
-        // SDK couldn't load → content without ads.
-        skipToContent();
-      });
+      .catch(skipToContent);
   }, [startContent]);
 
   // Keep the ad video filling the stage if the box resizes mid-ad.
