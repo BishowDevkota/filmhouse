@@ -22,6 +22,8 @@ export const metadata: Metadata = {
   },
   other: {
     monetag: "b3161416359da337fc7de5be85a55cb1",
+    "4e4b25ac59713616bef84db1d1f4dc23e1e98a92":
+      "4e4b25ac59713616bef84db1d1f4dc23e1e98a92",
   },
 };
 
