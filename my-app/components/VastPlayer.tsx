@@ -166,8 +166,11 @@ export default function VastPlayer({
 
   // No VAST tag → skip the ad entirely, just like a plain <video>.
   useEffect(() => {
-    if (!adEnabled && phase !== "content") startContent();
-  }, [adEnabled, phase, startContent]);
+    if (!adEnabled && !contentStartedRef.current) {
+      contentStartedRef.current = true;
+      startContent();
+    }
+  }, [adEnabled, startContent]);
 
   // Tear down SDK/HLS resources on unmount.
   useEffect(() => {

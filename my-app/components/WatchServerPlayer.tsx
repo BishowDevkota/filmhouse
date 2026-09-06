@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type HlsJs from "hls.js";
 import type { StreamSource, WatchServer } from "@/lib/streaming";
+import VastPlayer from "@/components/VastPlayer";
 
 /**
  * Server switcher + player.
@@ -74,70 +74,6 @@ function pickResult(urls: string[]): { media?: string; page?: string } {
   return page ? { page } : {};
 }
 
-/** Native HLS (Safari) or hls.js through Media Source Extensions. */
-function HlsVideo({ url, label }: { url: string; label: string }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const hlsRef = useRef<HlsJs | null>(null);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = url;
-      return () => {
-        video.removeAttribute("src");
-        video.load();
-      };
-    }
-
-    let cancelled = false;
-    void import("hls.js").then(({ default: Hls }) => {
-      if (cancelled || !Hls.isSupported()) {
-        if (!cancelled) setFailed(true);
-        return;
-      }
-      const hls = new Hls();
-      hlsRef.current = hls;
-      hls.on(Hls.Events.ERROR, (_event, data) => {
-        if (!data.fatal) return;
-        setFailed(true);
-        hls.destroy();
-        hlsRef.current = null;
-      });
-      hls.loadSource(url);
-      hls.attachMedia(video);
-    });
-
-    return () => {
-      cancelled = true;
-      hlsRef.current?.destroy();
-      hlsRef.current = null;
-    };
-  }, [url]);
-
-  return (
-    <>
-      <video
-        ref={videoRef}
-        className="absolute inset-0 h-full w-full"
-        controls
-        autoPlay
-        playsInline
-      />
-      {failed ? (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/70 p-6 text-center">
-          <p className="text-sm text-neutral-300">
-            {label} wouldn&apos;t start — the host may be blocking direct
-            playback. Try another server.
-          </p>
-        </div>
-      ) : null}
-    </>
-  );
-}
-
 /** JSON API server: fetch once, then play whatever it points at. */
 function JsonServer({ apiUrl, label }: { apiUrl: string; label: string }) {
   const [result, setResult] = useState<{
@@ -201,15 +137,9 @@ function JsonServer({ apiUrl, label }: { apiUrl: string; label: string }) {
   }
   if (result.media) {
     return isHls(result.media) ? (
-      <HlsVideo url={result.media} label={label} />
+      <VastPlayer kind="hls" url={result.media} label={label} />
     ) : (
-      <video
-        className="absolute inset-0 h-full w-full"
-        src={result.media}
-        controls
-        autoPlay
-        playsInline
-      />
+      <VastPlayer kind="progressive" url={result.media} label={label} />
     );
   }
   if (result.page) {
@@ -398,7 +328,7 @@ export default function WatchServerPlayer({
       if (server.kind === "hls" && server.url) {
         return (
           <div key={key} className="absolute inset-0">
-            <HlsVideo url={server.url} label={server.provider} />
+            <VastPlayer kind="hls" url={server.url} label={server.provider} />
           </div>
         );
       }
@@ -415,12 +345,10 @@ export default function WatchServerPlayer({
     // No configured servers → legacy single source or the trailer.
     if (legacy && legacy.kind === "video") {
       return (
-        <video
-          className="absolute inset-0 h-full w-full"
-          src={legacy.url}
-          controls
-          autoPlay
-          playsInline
+        <VastPlayer
+          kind="progressive"
+          url={legacy.url}
+          label={legacy.label ?? title}
         />
       );
     }
