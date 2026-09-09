@@ -72,4 +72,48 @@ override in `.env.local` to point at a mirror.
 > returns `{ sources: [{ url, quality, isM3U8 }] }` and takes provider-specific
 > ids, not a TMDB-keyed iframe. Wire it in as a JSON server once you run your
 > Consumet instance and pick a provider.
+
+## Live sports (`/sports`)
+
+Sports live at `/sports`, `/sports/{sport}` and `/sports/{sport}/{matchId}`, and
+reuse the same `<WatchServerPlayer>` as the movie pages - so the Server 1..N bar,
+fullscreen and the VAST pre-roll all behave identically.
+
+Fixtures are nothing like TMDB titles: a match is a short-lived event and every
+provider invents its own id for it. So one provider supplies the **schedule** and
+the rest are joined onto it **by fixture title**, guarded by kickoff time (see
+`sameFixture` in `lib/sports.ts`) - that time guard is what keeps game 2 of a
+three-game series from picking up game 1's stream.
+
+| Provider       | Role                | Key?  | Override                                |
+| -------------- | ------------------- | ----- | --------------------------------------- |
+| Streamed       | schedule + streams  | none  | `STREAMED_BASE_URL` (`https://streamed.pk`)        |
+| EmbedSportex   | extra streams       | none  | `EMBEDSPORTEX_BASE_URL` (`https://api.esportex.site`) |
+| SportSRC       | extra streams       | **yes** | `SPORTSRC_API_KEY`, `SPORTSRC_BASE_URL`          |
+| The Stream Den | extra streams       | n/a   | `STREAMDEN_EMBED_URL` (URL template)               |
+| VenueVault     | extra streams       | n/a   | `VENUEVAULT_EMBED_URL` (URL template)              |
+
+Verified 2026-09: **Streamed** and **EmbedSportex** work with no signup and are
+on by default - a Champions League fixture resolved 3 Streamed + 2 EmbedSportex
+servers. The other three need configuring:
+
+- **SportSRC** returns `401 Missing API Key` on everything except `?type=sports`.
+  Get a free key at <https://sportsrc.org/v2/> and set `SPORTSRC_API_KEY`. Its
+  free tier is football-only, and because the response shape for `?type=detail`
+  is undocumented, `lib/sports.ts` scans the payload for embeddable URLs rather
+  than reading named fields - **this path is unverified without a key.**
+- **The Stream Den** (503) and **VenueVault** (522 origin down) were both
+  unreachable and publish no API, so nothing about their URLs is guessed. Each
+  stays a greyed-out button until you set its env var to that site's embed URL,
+  using `{slug}`, `{id}`, `{title}` or `{sport}` as placeholders:
+
+  ```bash
+  # .env.local - example shapes only; use whatever the host actually serves
+  STREAMDEN_EMBED_URL="https://thestreamden.com/embed/{slug}"
+  VENUEVAULT_EMBED_URL="https://venuevault.live/watch/{slug}"
+  ```
+
+Every provider is optional and every lookup is failure-tolerant: a host that is
+down, rate-limited or has changed shape contributes no servers and leaves the
+rest of the page working.
 # filmhouse

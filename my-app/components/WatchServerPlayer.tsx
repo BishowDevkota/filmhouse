@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { StreamSource, WatchServer } from "@/lib/streaming";
 import VastPlayer from "@/components/VastPlayer";
+import VastPreroll, { PREROLL_ENABLED } from "@/components/VastPreroll";
 
 /**
  * Server switcher + player.
@@ -12,6 +13,11 @@ import VastPlayer from "@/components/VastPlayer";
  *   embed → the source's own player in an <iframe>
  *   hls   → a direct .m3u8 fed to our built-in <video> through hls.js
  *   json  → an API we fetch; the playable URL is pulled out and played
+ *
+ * Every one of them plays behind the site's own VAST pre-roll: our <video>
+ * servers run the ad in the player itself, and embed servers run it in front
+ * of the iframe (see <PrerollEmbed>), so the ad is not left to whichever
+ * third-party host happens to serve its own.
  *
  * When no servers are configured (e.g. the trailer page) it degrades to the
  * legacy single source or a YouTube trailer, exactly like the old player.
@@ -144,16 +150,47 @@ function JsonServer({ apiUrl, label }: { apiUrl: string; label: string }) {
   }
   if (result.page) {
     return (
-      <iframe
-        className="absolute inset-0 h-full w-full"
+      <PrerollEmbed
         src={result.page}
-        title={`${label} playback`}
-        allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-        allowFullScreen
+        frameTitle={`${label} playback`}
+        label={label}
       />
     );
   }
   return null;
+}
+
+/**
+ * A third-party embed behind the site's own pre-roll.
+ *
+ * IMA ads can't run inside a cross-origin player, so the ad runs in front of
+ * the iframe instead. The iframe stays unmounted until the break is over,
+ * which also keeps the host's player from autoplaying underneath the ad.
+ */
+function PrerollEmbed({
+  src,
+  frameTitle,
+  label,
+}: {
+  src: string;
+  frameTitle: string;
+  /** Provider name, named in the pre-roll copy. */
+  label: string;
+}) {
+  const [showAd, setShowAd] = useState(PREROLL_ENABLED);
+  const onFinished = useCallback(() => setShowAd(false), []);
+
+  if (showAd) return <VastPreroll label={label} onFinished={onFinished} />;
+
+  return (
+    <iframe
+      className="absolute inset-0 h-full w-full"
+      src={src}
+      title={frameTitle}
+      allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+      allowFullScreen
+    />
+  );
 }
 
 function ServerBar({
@@ -315,13 +352,11 @@ export default function WatchServerPlayer({
       const key = `${server.number}-${(server.url ?? server.apiUrl) ?? ""}`;
       if (server.kind === "embed" && server.url) {
         return (
-          <iframe
+          <PrerollEmbed
             key={key}
-            className="absolute inset-0 h-full w-full"
             src={server.url}
-            title={`${title} — Server ${server.number} (${server.provider})`}
-            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-            allowFullScreen
+            frameTitle={`${title} — Server ${server.number} (${server.provider})`}
+            label={server.provider}
           />
         );
       }
@@ -354,12 +389,10 @@ export default function WatchServerPlayer({
     }
     if (legacy) {
       return (
-        <iframe
-          className="absolute inset-0 h-full w-full"
+        <PrerollEmbed
           src={legacy.url}
-          title={`${title} — full playback`}
-          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-          allowFullScreen
+          frameTitle={`${title} — full playback`}
+          label={legacy.label ?? title}
         />
       );
     }
