@@ -21,7 +21,10 @@ export const metadata: Metadata = {
     shortcut: "/logo.png",
   },
   other: {
-    monetag: "b3161416359da337fc7de5be85a55cb1",
+    monetag: [
+      "b3161416359da337fc7de5be85a55cb1",
+      "0f3b78e13540632d83b2a4d4a78384a1",
+    ],
     "4e4b25ac59713616bef84db1d1f4dc23e1e98a92":
       "4e4b25ac59713616bef84db1d1f4dc23e1e98a92",
   },
