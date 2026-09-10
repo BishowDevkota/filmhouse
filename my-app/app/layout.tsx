@@ -35,6 +35,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main className="flex-1">{children}</main>
         <Footer />
 
+        <Script
+          id="quge5-tag"
+          src="https://quge5.com/88/tag.min.js"
+          data-zone="278532"
+          data-cfasync="false"
+          strategy="beforeInteractive"
+        />
+
         <AdBlockGate />
       </body>
     </html>
