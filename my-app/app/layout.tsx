@@ -22,11 +22,8 @@ export const metadata: Metadata = {
   },
   other: {
     monetag: [
-      "b3161416359da337fc7de5be85a55cb1",
       "0f3b78e13540632d83b2a4d4a78384a1",
     ],
-    "4e4b25ac59713616bef84db1d1f4dc23e1e98a92":
-      "4e4b25ac59713616bef84db1d1f4dc23e1e98a92",
   },
 };
 
@@ -39,27 +36,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Footer />
 
         <AdBlockGate />
-
-        {/* Ad tags (zones 11723367 / 11723369 / 11723371). afterInteractive
-            keeps them off the critical path. */}
-        <Script
-          src="https://5gvci.com/act/files/tag.min.js?z=11723367"
-          data-cfasync="false"
-          strategy="afterInteractive"
-        />
-        <Script id="ad-zone-11723369" strategy="afterInteractive">
-          {`(function(s){s.dataset.zone='11723369',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`}
-        </Script>
-        <Script id="ad-zone-11723371" strategy="afterInteractive">
-          {`(function(s){s.dataset.zone='11723371',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`}
-        </Script>
-
-        {/* HilltopAds tag, verified by the meta tag in `metadata.other`. */}
-        <Script
-          src="https://naive-many.com/b.3/VC0FP_3Mp/v/bjm/VCJZZhD/0m3/Mzz_gp5VMzDoIK5vLWT/cnzVO/DWkcwiMVzeMq"
-          data-cfasync="false"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );
