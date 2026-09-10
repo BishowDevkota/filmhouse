@@ -142,7 +142,7 @@ export default function AdBlockGate() {
         <p className="mb-6 text-xs text-neutral-500">
           {retried
             ? "Disable it for this site, reload the page, then press OK again."
-            : "Ads keep Filmhouse TV free. Disable your blocker for this site, then press OK."}
+            : "Ads keep Hatti TV free. Disable your blocker for this site, then press OK."}
         </p>
 
         <button

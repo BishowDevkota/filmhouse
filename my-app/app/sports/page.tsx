@@ -2,14 +2,22 @@ import type { Metadata } from "next";
 import SportsGrid from "@/components/SportsGrid";
 import SportsNav from "@/components/SportsNav";
 import { getLiveMatches, getMatches, getSports, isLive } from "@/lib/sports";
+import { SITE_NAME, breadcrumbLd, jsonLd } from "@/lib/site";
 
 /** Fixture lists move on their own; don't serve a stale card for long. */
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Live Sports — Filmhouse TV",
-  description:
-    "Live football, basketball, NFL, UFC, cricket and more — every game with multiple streams.",
+  title: "Live Sports Streams",
+  description: `Live football, basketball, NFL, UFC, cricket and more on ${SITE_NAME} — every game with multiple streams, free and without signup.`,
+  alternates: { canonical: "/sports" },
+  openGraph: {
+    title: `Live Sports Streams — ${SITE_NAME}`,
+    description:
+      "Live football, basketball, NFL, UFC, cricket and more — every game with multiple streams.",
+    url: "/sports",
+    type: "website",
+  },
 };
 
 export default async function SportsPage() {
@@ -26,8 +34,15 @@ export default async function SportsPage() {
     (match) => !liveIds.has(match.id) && !isLive(match),
   );
 
+  const crumbs = breadcrumbLd([
+    { name: "Home", path: "/" },
+    { name: "Live Sports", path: "/sports" },
+  ]);
+
   return (
     <div className="min-h-screen bg-black px-4 pt-24 pb-16 md:px-12 md:pt-28">
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(crumbs)} />
+
       <div className="mx-auto w-full max-w-[1600px]">
         <header className="mb-8">
           <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">

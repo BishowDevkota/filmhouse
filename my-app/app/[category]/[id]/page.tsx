@@ -18,6 +18,7 @@ import {
   toCardItem,
   type TmdbDetails,
 } from "@/lib/tmdb";
+import { SITE_NAME, absoluteUrl, breadcrumbLd, jsonLd } from "@/lib/site";
 
 function formatRuntime(minutes: number): string {
   const hours = Math.floor(minutes / 60);
@@ -46,11 +47,19 @@ export async function generateMetadata({
 }: PageProps<"/[category]/[id]">): Promise<Metadata> {
   const { category, id } = await params;
   const details = await loadTitle(category, id);
-  if (!details) return { title: "Not found — Filmhouse TV" };
+  if (!details) return { title: "Not found", robots: { index: false } };
 
   const name = getTitle(details);
-  const title = `${name} — Filmhouse TV`;
-  const description = details.overview?.slice(0, 160);
+  const year = getYear(details);
+  const config = getCategory(category);
+  const kind = config?.mediaType === "tv" ? "TV series" : "movie";
+
+  // A bare name competes with every other listing for the same title, so the
+  // year and medium go in the tag where Google can see them.
+  const title = year ? `${name} (${year})` : name;
+  const description =
+    details.overview?.slice(0, 160) ||
+    `Watch the ${kind} ${name}${year ? ` (${year})` : ""} on ${SITE_NAME} — trailer, cast, ratings and streaming servers.`;
 
   // Use the title's own artwork as the share preview image, otherwise
   // WhatsApp/Facebook/Twitter fall back to the site favicon (logo.png).
@@ -73,10 +82,12 @@ export async function generateMetadata({
   return {
     title,
     description,
+    alternates: { canonical: `/${category}/${id}` },
     openGraph: {
-      title,
+      title: `${title} — ${SITE_NAME}`,
       description,
-      type: "website",
+      url: `/${category}/${id}`,
+      type: "video.movie",
       images: ogImage ? [ogImage] : undefined,
     },
     twitter: {
@@ -85,6 +96,61 @@ export async function generateMetadata({
       description,
       images: ogImage ? [ogImage.url] : undefined,
     },
+  };
+}
+
+/**
+ * Movie / TVSeries structured data. Google's video and rating rich results
+ * read this, and a title page with no markup is invisible to them.
+ */
+function titleLd(
+  details: TmdbDetails,
+  category: { slug: string; label: string; mediaType: string },
+  path: string,
+) {
+  const name = getTitle(details);
+  const director = details.credits?.crew?.find((who) => who.job === "Director");
+
+  return {
+    "@context": "https://schema.org",
+    "@type": category.mediaType === "tv" ? "TVSeries" : "Movie",
+    name,
+    url: absoluteUrl(path),
+    description: details.overview || undefined,
+    image: posterUrl(details.poster_path) ?? backdropUrl(details.backdrop_path) ?? undefined,
+    datePublished: details.release_date || details.first_air_date || undefined,
+    genre: details.genres?.map((genre) => genre.name),
+    inLanguage: details.spoken_languages?.[0]?.english_name,
+    numberOfSeasons: details.number_of_seasons,
+    numberOfEpisodes: details.number_of_episodes,
+    // Schema.org wants an ISO 8601 duration, not "128".
+    duration: details.runtime ? `PT${details.runtime}M` : undefined,
+    director: director ? { "@type": "Person", name: director.name } : undefined,
+    actor: details.credits?.cast?.slice(0, 8).map((person) => ({
+      "@type": "Person",
+      name: person.name,
+    })),
+    // TMDB rates out of 10 and a rating node without votes is rejected.
+    aggregateRating:
+      details.vote_average && details.vote_count
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: details.vote_average.toFixed(1),
+            bestRating: 10,
+            worstRating: 0,
+            ratingCount: details.vote_count,
+          }
+        : undefined,
+    trailer: pickTrailer(details.videos?.results)
+      ? {
+          "@type": "VideoObject",
+          name: `${name} — Trailer`,
+          embedUrl: `https://www.youtube.com/embed/${pickTrailer(details.videos?.results)}`,
+          thumbnailUrl: backdropUrl(details.backdrop_path) ?? undefined,
+          uploadDate: details.release_date || details.first_air_date || undefined,
+          description: details.overview || undefined,
+        }
+      : undefined,
   };
 }
 
@@ -116,8 +182,21 @@ export default async function TitlePage({
 
   const related = pickRelated(details);
 
+  const path = `/${category.slug}/${id}`;
+  const crumbs = breadcrumbLd([
+    { name: "Home", path: "/" },
+    { name: category.label, path: `/${category.slug}` },
+    { name: title, path },
+  ]);
+
   return (
     <article>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLd(titleLd(details, category, path))}
+      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(crumbs)} />
+
       <TitleHero
         backdrop={backdropUrl(details.backdrop_path)}
         title={title}

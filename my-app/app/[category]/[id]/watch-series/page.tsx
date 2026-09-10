@@ -20,6 +20,7 @@ import {
   type TmdbDetails,
   type TmdbSeason,
 } from "@/lib/tmdb";
+import { SITE_NAME } from "@/lib/site";
 
 async function getSeriesDetails(id: string): Promise<TmdbDetails | null> {
   try {
@@ -46,12 +47,28 @@ async function getSeriesSeason(
 export async function generateMetadata({
   params,
 }: PageProps<"/[category]/[id]/watch-series">): Promise<Metadata> {
-  const { id } = await params;
+  const { category, id } = await params;
   const details = await getSeriesDetails(id);
-  if (!details) return { title: "Not found — Filmhouse TV" };
+  if (!details) return { title: "Not found", robots: { index: false } };
+
+  const name = getTitle(details);
+  const title = `Watch ${name} Online Free`;
+  const description =
+    details.overview?.slice(0, 160) ||
+    `Stream every season of ${name} on ${SITE_NAME} — multiple servers, no signup.`;
+
   return {
-    title: `Watch ${getTitle(details)} — Filmhouse TV`,
-    description: details.overview?.slice(0, 160),
+    title,
+    description,
+    // Season and episode live in ?s=&e=, which would split one page into
+    // hundreds of near-identical URLs. Point them all at the clean one.
+    alternates: { canonical: `/${category}/${id}/watch-series` },
+    openGraph: {
+      title: `${title} — ${SITE_NAME}`,
+      description,
+      url: `/${category}/${id}/watch-series`,
+      type: "video.tv_show",
+    },
   };
 }
 

@@ -10,6 +10,7 @@ import {
   pickTrailer,
   type TmdbDetails,
 } from "@/lib/tmdb";
+import { SITE_NAME } from "@/lib/site";
 
 async function getDetailsForSlug(
   slug: string,
@@ -30,8 +31,22 @@ export async function generateMetadata({
 }: PageProps<"/[category]/[id]/watch-trailer">): Promise<Metadata> {
   const { category: slug, id } = await params;
   const details = await getDetailsForSlug(slug, id);
+  if (!details) return { title: "Not found", robots: { index: false } };
+
+  const name = getTitle(details);
+  const title = `${name} — Official Trailer`;
+  const description = `Watch the official trailer for ${name} on ${SITE_NAME}.`;
+
   return {
-    title: details ? `Trailer ${getTitle(details)} — Filmhouse TV` : "Not found",
+    title,
+    description,
+    alternates: { canonical: `/${slug}/${id}/watch-trailer` },
+    openGraph: {
+      title: `${title} — ${SITE_NAME}`,
+      description,
+      url: `/${slug}/${id}/watch-trailer`,
+      type: "video.other",
+    },
   };
 }
 

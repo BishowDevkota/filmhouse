@@ -4,12 +4,20 @@ import Row from "@/components/Row";
 import SetupNotice from "@/components/SetupNotice";
 import { HeroSkeleton, RowSkeleton } from "@/components/Skeletons";
 import { HOME_ROWS, hasTmdbToken } from "@/lib/tmdb";
+import { SITE_NAME, SITE_TAGLINE } from "@/lib/site";
 
 export default function Home() {
   if (!hasTmdbToken()) return <SetupNotice />;
 
   return (
     <div>
+      {/* The hero shows whatever is trending today, so the page's own <h1>
+          has to say what the site is — screen readers and crawlers both read
+          it first. */}
+      <h1 className="sr-only">
+        {SITE_NAME} — {SITE_TAGLINE}
+      </h1>
+
       <Suspense fallback={<HeroSkeleton />}>
         <Hero />
       </Suspense>

@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
-/* Palette taken from the Filmhouse logo: logo red on near-black. */
+/* Palette taken from the Hatti TV logo: logo red on near-black. */
 @theme {
   --color-brand: #eb1218;
   --color-brand-bright: #ff5c5f;
   --color-brand-deep: #8f0d12;
   --color-brand-black: #000000;
   --color-brand-surface: #101010;
-  --font-sans: var(--font-filmhouse), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-hatti), ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {

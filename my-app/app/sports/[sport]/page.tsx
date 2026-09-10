@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import SportsGrid from "@/components/SportsGrid";
 import SportsNav from "@/components/SportsNav";
 import { getMatches, getSports, isLive, sportIcon } from "@/lib/sports";
+import { SITE_NAME, breadcrumbLd, jsonLd } from "@/lib/site";
 
 export const revalidate = 60;
 
@@ -21,10 +22,21 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { sport: id } = await params;
   const { sport } = await findSport(id);
-  if (!sport) return { title: "Not found — Filmhouse TV" };
+  if (!sport) return { title: "Not found", robots: { index: false } };
+
+  const title = `${sport.name} Live Streams`;
+  const description = `Live and upcoming ${sport.name.toLowerCase()} matches on ${SITE_NAME}, with multiple streams for every fixture.`;
+
   return {
-    title: `${sport.name} Live Streams — Filmhouse TV`,
-    description: `Live and upcoming ${sport.name.toLowerCase()} matches, with multiple streams for every fixture.`,
+    title,
+    description,
+    alternates: { canonical: `/sports/${sport.id}` },
+    openGraph: {
+      title: `${title} — ${SITE_NAME}`,
+      description,
+      url: `/sports/${sport.id}`,
+      type: "website",
+    },
   };
 }
 
@@ -41,8 +53,16 @@ export default async function SportPage({
   const live = matches.filter((match) => isLive(match));
   const upcoming = matches.filter((match) => !isLive(match));
 
+  const crumbs = breadcrumbLd([
+    { name: "Home", path: "/" },
+    { name: "Live Sports", path: "/sports" },
+    { name: sport.name, path: `/sports/${sport.id}` },
+  ]);
+
   return (
     <div className="min-h-screen bg-black px-4 pt-24 pb-16 md:px-12 md:pt-28">
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(crumbs)} />
+
       <div className="mx-auto w-full max-w-[1600px]">
         <header className="mb-8">
           <h1 className="flex items-center gap-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">

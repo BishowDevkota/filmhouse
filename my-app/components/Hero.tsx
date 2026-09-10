@@ -40,9 +40,9 @@ export default async function Hero() {
       />
 
       <div className="relative z-10 flex h-full max-w-2xl flex-col justify-end gap-4 px-4 pb-40 md:px-12 md:pb-52">
-        <h1 className="text-shadow-hero text-3xl font-extrabold sm:text-5xl md:text-6xl">
+        <h2 className="text-shadow-hero text-3xl font-extrabold sm:text-5xl md:text-6xl">
           {title}
-        </h1>
+        </h2>
         <p className="text-shadow-hero line-clamp-3 max-w-xl text-sm text-neutral-200 sm:text-base md:text-lg">
           {featured.overview}
         </p>

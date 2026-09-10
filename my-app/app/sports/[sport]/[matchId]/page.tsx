@@ -13,6 +13,7 @@ import {
   type SportsMatch,
   type SportsTeam,
 } from "@/lib/sports";
+import { SITE_NAME, absoluteUrl, jsonLd } from "@/lib/site";
 
 /**
  * The player for one fixture.
@@ -30,10 +31,57 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { sport, matchId } = await params;
   const match = await getMatch(sport, matchId);
-  if (!match) return { title: "Not found — Filmhouse TV" };
+  if (!match) return { title: "Not found", robots: { index: false } };
+
+  const title = `${match.title} — Live Stream`;
+  const description = `Watch ${match.title} live on ${SITE_NAME}. Multiple streams, no signup.`;
+
   return {
-    title: `${match.title} — Live Stream | Filmhouse TV`,
-    description: `Watch ${match.title} live. Multiple streams, no signup.`,
+    title,
+    description,
+    alternates: { canonical: `/sports/${sport}/${matchId}` },
+    openGraph: {
+      title: `${title} — ${SITE_NAME}`,
+      description,
+      url: `/sports/${sport}/${matchId}`,
+      type: "video.other",
+      images: match.poster ? [{ url: match.poster, alt: match.title }] : undefined,
+    },
+  };
+}
+
+/**
+ * SportsEvent structured data. A fixture is an event with a start time and two
+ * competitors, and saying so is what lets it surface in Google's sports and
+ * event results rather than as a plain page.
+ */
+function matchLd(match: SportsMatch, path: string) {
+  const competitors = [match.home, match.away]
+    .filter((team): team is SportsTeam => Boolean(team))
+    .map((team) => ({
+      "@type": "SportsTeam",
+      name: team.name,
+      logo: team.badge ?? undefined,
+    }));
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "SportsEvent",
+    name: match.title,
+    url: absoluteUrl(path),
+    startDate: new Date(match.date).toISOString(),
+    eventStatus: "https://schema.org/EventScheduled",
+    // The fixture is played somewhere physical, but the thing being offered
+    // here is the stream, so the location is the watch page itself.
+    eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
+    location: {
+      "@type": "VirtualLocation",
+      url: absoluteUrl(path),
+    },
+    image: match.poster ?? undefined,
+    sport: match.sport.replace(/-/g, " "),
+    competitor: competitors.length ? competitors : undefined,
+    isAccessibleForFree: true,
   };
 }
 
@@ -111,6 +159,11 @@ export default async function SportsWatchPage({
 
   return (
     <div className="relative min-h-screen bg-black pt-16 pb-16 md:pt-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLd(matchLd(match, `/sports/${sport}/${matchId}`))}
+      />
+
       <div className="relative px-4 md:px-12">
         <div
           className="mx-auto w-full"

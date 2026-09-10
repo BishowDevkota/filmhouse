@@ -1,8 +1,21 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import MediaGrid from "@/components/MediaGrid";
 import SetupNotice from "@/components/SetupNotice";
 import { GridSkeleton } from "@/components/Skeletons";
 import { hasTmdbToken, search, toCardItem } from "@/lib/tmdb";
+import { SITE_NAME } from "@/lib/site";
+
+/**
+ * One page per query is thin, duplicated content — exactly what Google asks
+ * you to keep out of the index. Crawlers may still follow the result links
+ * through to the title pages, which is where the value actually is.
+ */
+export const metadata: Metadata = {
+  title: "Search",
+  description: `Search movies, TV shows, anime and Hindi cinema on ${SITE_NAME}.`,
+  robots: { index: false, follow: true },
+};
 
 async function Results({ query }: { query: string }) {
   if (!query) {
@@ -49,6 +62,9 @@ export default async function SearchPage({
 
   return (
     <div className="pt-24 pb-8 md:pt-28">
+      <h1 className="sr-only">
+        {query ? `Search results for ${query}` : "Search"}
+      </h1>
       <Suspense key={query} fallback={<GridSkeleton title="Searching…" />}>
         <Results query={query} />
       </Suspense>

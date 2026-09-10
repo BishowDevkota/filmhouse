@@ -13,6 +13,7 @@ import {
   toCardItem,
   type TmdbDetails,
 } from "@/lib/tmdb";
+import { SITE_NAME } from "@/lib/site";
 
 async function getMovieDetails(id: string): Promise<TmdbDetails | null> {
   try {
@@ -26,12 +27,26 @@ async function getMovieDetails(id: string): Promise<TmdbDetails | null> {
 export async function generateMetadata({
   params,
 }: PageProps<"/[category]/[id]/watch-movie">): Promise<Metadata> {
-  const { id } = await params;
+  const { category, id } = await params;
   const details = await getMovieDetails(id);
-  if (!details) return { title: "Not found — Filmhouse TV" };
+  if (!details) return { title: "Not found", robots: { index: false } };
+
+  const name = getTitle(details);
+  const title = `Watch ${name} Online Free`;
+  const description =
+    details.overview?.slice(0, 160) ||
+    `Stream ${name} on ${SITE_NAME} — multiple servers, no signup.`;
+
   return {
-    title: `Watch ${getTitle(details)} — Filmhouse TV`,
-    description: details.overview?.slice(0, 160),
+    title,
+    description,
+    alternates: { canonical: `/${category}/${id}/watch-movie` },
+    openGraph: {
+      title: `${title} — ${SITE_NAME}`,
+      description,
+      url: `/${category}/${id}/watch-movie`,
+      type: "video.movie",
+    },
   };
 }
 
